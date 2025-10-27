@@ -16,6 +16,8 @@ function JobBoard() {
   const [savedJobs,setSavedJobs] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 const [filterType, setFilterType] = useState('all');
+const [sortOption, setSortOption] = useState("recent");
+
 const highlightText = (text, searchTerm) => {
   if (!text || !searchTerm) return text;
   const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // escape regex chars
@@ -24,31 +26,41 @@ const highlightText = (text, searchTerm) => {
 };
 
 
-const filteredJobs = jobs.filter((job) => {
-const matchesSearch =
-  job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  (job.description && job.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-  (Array.isArray(job.skills) && job.skills.some(
-    (skill) => skill.toLowerCase().includes(searchTerm.toLowerCase())
-  ))||job.posted_by_username.toLowerCase().includes(searchTerm.toLowerCase());
+const filteredJobs = jobs
+  .filter((job) => {
+    const matchesSearch =
+      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (job.description && job.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (Array.isArray(job.skills) &&
+        job.skills.some((skill) => skill.toLowerCase().includes(searchTerm.toLowerCase()))) ||
+      job.posted_by_username.toLowerCase().includes(searchTerm.toLowerCase());
 
+    const isSaved = savedJobs.includes(job.id);
+    const isApplied = appliedJobs.includes(job.id);
 
-  const isSaved = savedJobs.includes(job.id);
-  const isApplied = appliedJobs.includes(job.id);
+    if (filterType === "saved" && !isSaved) return false;
+    if (filterType === "unsaved" && isSaved) return false;
+    if (filterType === "applied" && !isApplied) return false;
+    if (filterType === "unapplied" && isApplied) return false;
 
-   if (filterType === "saved" && !isSaved) return false;
-if (filterType === "unsaved" && isSaved) return false;
-if (filterType === "applied" && !isApplied) return false;
-if (filterType === "unapplied" && isApplied) return false;
+    return matchesSearch;
+  })
+  .sort((a, b) => {
+    if (sortOption === "recent") {
+      return new Date(b.created_at) - new Date(a.created_at);
+    } else if (sortOption === "views") {
+      return (b.views || 0) - (a.views || 0);
+    }
+    return 0;
+  });
 
-  return matchesSearch;
-});
   // Fetch jobs from API
 const getJobs = async () => {
   setLoading(true);
   try {
     const response = await api.get('/api/v1/jobs/');
+    console.log(response.data)
     setJobs(response.data);
   } catch (err) {
     setError(err.response?.data?.detail || err.message);
@@ -172,28 +184,52 @@ const handleSave = async (jobId) => {
         </div>
         {/* 🔍 Filter & Search Controls */}
       <div className='super-job-content'>
-        <div className="filter-bar">
-          <input
-            type="text"
-            placeholder="Search jobs..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="filter-search"
-          />
+       <div className="filter-bar">
+  <input
+    type="text"
+    placeholder="Search jobs..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="filter-search"
+  />
 
-          <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            className="filter-select"
-          >
-            <option value="all">All Jobs</option>
-            <option value="saved">Saved Jobs</option>
-            <option value="unsaved">Unsaved Jobs</option>
-            <option value="applied">Applied Jobs</option>
-            <option value="unapplied">Unapplied Jobs</option>
-          </select>
+  <select
+    value={filterType}
+    onChange={(e) => setFilterType(e.target.value)}
+    className="filter-select"
+  >
+    <option value="all">All Jobs</option>
+    <option value="saved">Saved Jobs</option>
+    <option value="unsaved">Unsaved Jobs</option>
+    <option value="applied">Applied Jobs</option>
+    <option value="unapplied">Unapplied Jobs</option>
+  </select>
 
-        </div>
+  <div className="sort-options">
+    <p className="sort-label">Sort by:</p>
+    <label className="sort-option">
+      <input
+        type="radio"
+        name="sort"
+        value="recent"
+        checked={sortOption === "recent"}
+        onChange={(e) => setSortOption(e.target.value)}
+      />
+      Recent
+    </label>
+    <label className="sort-option">
+      <input
+        type="radio"
+        name="sort"
+        value="views"
+        checked={sortOption === "views"}
+        onChange={(e) => setSortOption(e.target.value)}
+      />
+      Most Viewed
+    </label>
+  </div>
+</div>
+
 
       
 
@@ -244,11 +280,20 @@ const handleSave = async (jobId) => {
           <p className="location">Location: {job.location}</p>
 
           <div className="skills-section">
-            {job.skills && job.skills.map((skill, i) => (
-              <div key={i} className="skill-tab"
-              dangerouslySetInnerHTML={{ __html: highlightText(skill || '', searchTerm) }}
-              />
-            ))}
+            {job.skills && (
+  <>
+    {job.skills.slice(0, 3).map((skill, i) => (
+      <div key={i} className="skill-tab"
+        dangerouslySetInnerHTML={{ __html: highlightText(skill || '', searchTerm) }}
+      />
+    ))}
+    {job.skills.length > 3 && (
+      <div className="skill-tab skill-more">
+        +{job.skills.length - 3} more
+      </div>
+    )}
+  </>
+)}
           </div>
           <div className="job-poster" 
           dangerouslySetInnerHTML={{ __html:`Posted by ${highlightText(job.posted_by_username, searchTerm)}` }}

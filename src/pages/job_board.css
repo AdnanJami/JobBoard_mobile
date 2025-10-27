@@ -331,3 +331,32 @@
     align-items: stretch;
   }
 }
+.original-post{
+  font: .6em sans-serif;
+}
+
+/* ---------- Sort Options ---------- */
+.sort-options {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.95rem;
+}
+
+.sort-label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.sort-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #555;
+  cursor: pointer;
+}
+
+.sort-option input[type="radio"] {
+  accent-color: #2563eb;
+}

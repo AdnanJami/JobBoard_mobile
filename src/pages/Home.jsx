@@ -130,14 +130,17 @@ function Home() {
 
             <div className="mobile-menu-body">
               <nav className="mobile-nav">
-                <button className="mobile-nav-item">
-                  <Link to="/job-board" style={{ fontSize: "14px", textDecoration: 'none' }}>Find Job</Link></button>
-                <button className="mobile-nav-item">
-                  <Link to="/post-job" style={{ fontSize: "14px", textDecoration: 'none' }}>Post Job</Link></button>
+  <button className="mobile-nav-item" onClick={() => setShowMobileMenu(false)}>
+    <Link to="/job-board" style={{ fontSize: "14px", textDecoration: 'none' }}>Find Job</Link>
+  </button>
+  <button className="mobile-nav-item" onClick={() => setShowMobileMenu(false)}>
+    <Link to="/post-job" style={{ fontSize: "14px", textDecoration: 'none' }}>Post Job</Link>
+  </button>
+  <button className="mobile-nav-item" onClick={() => setShowMobileMenu(false)}>
+    <Link to="/my-job" style={{ fontSize: "14px", textDecoration: 'none' }}>My Job</Link>
+  </button>
+</nav>
 
-                  <button className="mobile-nav-item">
-                    <Link to="/my-job" style={{ fontSize: "14px", textDecoration: 'none' }}>My Job</Link></button>
-              </nav>
 
               <div className="mobile-menu-divider"></div>
 
