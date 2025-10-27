@@ -1,123 +1,119 @@
-import React, { useState, useEffect } from 'react'
-import '../styles/BasicIntro.css'
-import api from "../api"; 
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import '../styles/BasicIntro.css';
+import api from '../api';
+import { Link, useNavigate } from 'react-router-dom';
 
-function Basic_Intro() {
-  const [username, setUsername] = useState("User");
+function BasicIntro() {
+  const [username, setUsername] = useState('User');
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // Fetch current user
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await api.get("/api/v1/current-user/");
-        console.log(response)
+        const response = await api.get('/api/v1/current-user/');
         setUsername(response.data.username);
       } catch (err) {
-        console.error(err);
-        // fallback to localStorage if backend not working
-        const storedUser = localStorage.getItem("username");
+        console.error('User fetch error:', err);
+        // fallback to local storage
+        const storedUser = localStorage.getItem('username');
         if (storedUser) setUsername(storedUser);
       }
     };
     fetchUser();
   }, []);
 
-  const getJobs = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get('/api/v1/jobs/');
-      setJobs(response.data);
-    } catch (err) {
-      setError(err.response?.data?.detail || err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Fetch jobs
   useEffect(() => {
+    const getJobs = async () => {
+      setLoading(true);
+      try {
+        const response = await api.get('/api/v1/jobs/');
+        setJobs(response.data);
+      } catch (err) {
+        setError(err.response?.data?.detail || err.message || 'Failed to load jobs');
+      } finally {
+        setLoading(false);
+      }
+    };
     getJobs();
   }, []);
 
   return (
-    <div className='super-container'>
+    <div className="super-container">
+      {/* Welcome Section */}
       <div className="welcome-section">
         <h1 className="title">Welcome to Jobaroo</h1>
-        <p className="subtitle">Gateway to hell</p>
+        <p className="subtitle">Gateway to Opportunity</p>
       </div>
-      
+
+      {/* Main Content Grid */}
       <div className="content-grid">
-        <div className="job-board-section">
+        {/* Job Board Section */}
+        <section className="job-board-section">
           <h2 className="section-title">Job Board</h2>
+
           <div className="job-items">
             {loading && <p>Loading jobs...</p>}
             {error && <p className="text-red-500">⚠️ {error}</p>}
-            {!loading && jobs.length === 0 && (
+            {!loading && !error && jobs.length === 0 && (
               <p className="no-results">No jobs found matching your search.</p>
             )}
+
             {jobs.slice(0, 3).map((job) => (
-              <div
+              <article
                 key={job.id}
                 className="job-card"
-                onClick={() => navigate(`/job-board`)}
+                onClick={() => navigate('/job-board')}
               >
-                <div className='job-card-header'>
-                  <div className='job-titles'>
-                    <div className="title">
-                      {job.title}
-                    </div>
-                    <p className="company-name">
-                      {job.company}
-                    </p>
+                <header className="job-card-header">
+                  <div className="job-titles">
+                    <h3 className="title">{job.title}</h3>
+                    <p className="company-name">{job.company}</p>
                   </div>
-                </div>
-                
-                <p className="description">
-                  {job.description}
-                </p>
+                </header>
+
+                <p className="description">{job.description}</p>
                 <p className="location">Location: {job.location}</p>
 
-                <div className="skills-section">
-                  {job.skills && job.skills.map((skill, index) => (
-                    <span key={index} className="skill-tag">{skill}</span>
-                  ))}
-                </div>
-                
-                <div className="job-poster">
-                  Posted by {job.posted_by_username}
-                </div>
-              </div>
+                {job.skills?.length > 0 && (
+                  <div className="skills-section">
+                    {job.skills.map((skill, index) => (
+                      <span key={index} className="skill-tag">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <footer className="job-poster">Posted by {job.posted_by_username}</footer>
+              </article>
             ))}
           </div>
-          
-          <div className='showmore'>
-            <Link to="/job-board" style={{ fontSize: "14px", textDecoration: 'none' }}>
+
+          <div className="showmore">
+            <Link to="/job-board" className="showmore-link">
               Show More
             </Link>
           </div>
-        </div>
-        
-        <div className="sidebar">
+        </section>
+
+        {/* Sidebar Section */}
+        <aside className="sidebar">
+          <div className="sidebar-item">Hello, {username}</div>
           <div className="sidebar-item">
-            Hello, {username}
+            <Link to="/my-job">Find Job</Link>
           </div>
           <div className="sidebar-item">
-            <Link to="/my-job" style={{ fontSize: "14px", textDecoration: 'none' }}>
-              Find Job
-            </Link>
+            <Link to="/post-job">Post Job</Link>
           </div>
-          <div className="sidebar-item">
-            <Link to="/post-job" style={{ fontSize: "14px", textDecoration: 'none' }}>
-              Post Job
-            </Link>
-          </div>
-        </div>
+        </aside>
       </div>
     </div>
-  )
+  );
 }
 
-export default Basic_Intro
+export default BasicIntro;
