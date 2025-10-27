@@ -121,17 +121,22 @@ function Home() {
         <div className="modal-overlay">
           <div className="mobile-menu-content">
             <div className="mobile-menu-header">
-              <div className="logo">Jobaroo</div>
+              <div className="logo">
+                <Link to="/" style={{ color: 'green', textDecoration: 'none' }}>Jobaroo</Link>
+
+              </div>
               <button onClick={() => setShowMobileMenu(false)} className="modal-close"><X size={24} /></button>
             </div>
 
             <div className="mobile-menu-body">
               <nav className="mobile-nav">
-                <button className="mobile-nav-item">Find Job</button>
                 <button className="mobile-nav-item">
-                  <span>Post Job</span>
-                  <ChevronDown size={20} />
-                </button>
+                  <Link to="/job-board" style={{ fontSize: "14px", textDecoration: 'none' }}>Find Job</Link></button>
+                <button className="mobile-nav-item">
+                  <Link to="/post-job" style={{ fontSize: "14px", textDecoration: 'none' }}>Post Job</Link></button>
+
+                  <button className="mobile-nav-item">
+                    <Link to="/my-job" style={{ fontSize: "14px", textDecoration: 'none' }}>My Job</Link></button>
               </nav>
 
               <div className="mobile-menu-divider"></div>
