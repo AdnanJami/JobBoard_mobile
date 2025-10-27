@@ -7,7 +7,7 @@ import Register from './pages/Register';
 import NotFound from './pages/NotFound';
 import Job_board from './pages/Job_board';
 import Basic_Intro from './pages/Basic_Intro';
-import ProtectedRoot from "./components/ProtectedRoot";
+import ProtectedRoot from "./Components/ProtectedRoot";
 import Post_Job from './pages/Post_Job';
 import Job_form from './Components/job_form';
 import JobBoard from './pages/job_Board_Jami';
